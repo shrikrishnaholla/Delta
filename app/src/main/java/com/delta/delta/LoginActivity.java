@@ -41,4 +41,9 @@ public class LoginActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 }
