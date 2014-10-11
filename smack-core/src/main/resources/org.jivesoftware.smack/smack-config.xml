@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!-- Smack configuration file. -->
+<smack>
+    <!-- Classes that will be loaded when Smack starts -->
+    <startupClasses>
+        <className>org.jivesoftware.smack.initializer.VmArgInitializer</className>
+        <className>org.jivesoftware.smack.ReconnectionManager</className>
+    </startupClasses>
+
+    <optionalStartupClasses>
+        <className>org.jivesoftware.smack.util.dns.javax.JavaxResolver</className>
+        <className>org.jivesoftware.smack.util.dns.minidns.MiniDnsResolver</className>
+        <className>org.jivesoftware.smack.util.dns.dnsjava.DNSJavaResolver</className>
+        <className>org.jivesoftware.smack.initializer.extensions.ExtensionsInitializer</className>
+        <className>org.jivesoftware.smack.initializer.experimental.ExperimentalInitializer</className>
+        <className>org.jivesoftware.smack.initializer.legacy.LegacyInitializer</className>
+        <className>org.jivesoftware.smack.initializer.tcp.SmackTcpSmackInitializer</className>
+        <className>org.jivesoftware.smack.sasl.javax.SASLJavaXSmackInitializer</className>
+        <className>org.jivesoftware.smack.sasl.provided.SASLProvidedSmackInitializer</className>
+        <className>org.jivesoftware.smack.android.AndroidSmackInitializer</className>
+        <className>org.jivesoftware.smack.java7.Java7SmackInitializer</className>
+    </optionalStartupClasses>
+</smack>
