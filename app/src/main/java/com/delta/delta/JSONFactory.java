@@ -15,7 +15,6 @@ public class JSONFactory {
     public static JSONObject getUserJSONProfile(JSONObject sourceJSON, String accessToken) {
         JSONObject userProfileJSON = new JSONObject();
         JSONObject valueJSON = new JSONObject();
-        valueJSON = listTransform(sourceJSON, valueJSON, "associations");
         valueJSON = listTransform(sourceJSON, valueJSON, "interests");
 
         valueJSON = hashTransform(sourceJSON, valueJSON, "languages", "values", "language", "name");
@@ -89,7 +88,7 @@ public class JSONFactory {
             JSONArray jsonifiedValueArray = new JSONArray(valuesArrayList);
             resultJSON.put(key, jsonifiedValueArray);
         } catch (Exception e) {
-            Log.e("LanguagesException","Languages not found");
+            Log.e("hashTransformException","hashTransform failed", e);
         }
         return resultJSON;
     }

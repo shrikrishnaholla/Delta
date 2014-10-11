@@ -12,19 +12,26 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 
 public class LinkedInAuthActivity extends Activity {
@@ -190,6 +197,9 @@ public class LinkedInAuthActivity extends Activity {
 
         @Override
         protected void onPreExecute(){
+            if(pd!=null && pd.isShowing()){
+                pd.dismiss();
+            }
             pd = new ProgressDialog(LinkedInAuthActivity.this);
             pd = ProgressDialog.show(LinkedInAuthActivity.this, "", "Signing In",true);
         }
@@ -266,10 +276,10 @@ public class LinkedInAuthActivity extends Activity {
 
 
     private class GetRequestAsyncTask extends AsyncTask<String, Void, Boolean> {
+        JSONObject userProfile;
 
         @Override
         protected void onPreExecute(){
-//            pd = ProgressDialog.show(MainActivity.this, "", MainActivity.this.getString(R.string.loading),true);
         }
 
         @Override
@@ -288,13 +298,15 @@ public class LinkedInAuthActivity extends Activity {
                             //If status is OK 200
                             if (response.getStatusLine().getStatusCode() == 200) {
                                 String result = EntityUtils.toString(response.getEntity());
-                                Log.i("Profile before JSONification!!!", "" + result);
+                                Log.i("LinkedINProfileString", result);
                                 //Convert the string result to a JSON Object
                                 JSONObject resultJson = new JSONObject(result);
-                                Log.i("JSON User profile!!!", "" + resultJson);
+                                Log.i("JSON LinkedIn profile", resultJson.toString());
                                 //Extract data from JSON Response
-                                JSONObject userProfile = JSONFactory.getUserJSONProfile(resultJson, accessToken);
+                                userProfile = JSONFactory.getUserJSONProfile(resultJson, accessToken);
                                 Log.i("After factory", userProfile.toString());
+
+                                return true;
                             }
                         }
                     } catch (IOException e) {
@@ -319,6 +331,160 @@ public class LinkedInAuthActivity extends Activity {
             }
             if(status){
                 Log.d("STATUS", "Successfully got user profile!!!!!");
+                new PostUserProfileAsyncTask().execute(userProfile);
+                //If everything went Ok, change to another activity.
+//                Intent startProfileActivity = new Intent(MainActivity.this, ProfileActivity.class);
+//                MainActivity.this.startActivity(startProfileActivity);
+            }
+        }
+
+    };
+
+
+    private class PostUserProfileAsyncTask extends AsyncTask<JSONObject, Void, Boolean> {
+        JSONObject userProfile;
+        String email;
+        JSONObject otherFields;
+        @Override
+        protected void onPreExecute(){
+            if(pd!=null && pd.isShowing()){
+                pd.dismiss();
+            }
+            pd = new ProgressDialog(LinkedInAuthActivity.this);
+            pd = ProgressDialog.show(LinkedInAuthActivity.this, "", "Creating a Delta Profile",true);
+        }
+
+        @Override
+        protected Boolean doInBackground(JSONObject... userProfiles) {
+            if (userProfiles.length > 0) {
+                userProfile = userProfiles[0];
+                Log.i("userProfile in PostUserProfileAsyncTask", userProfile.toString());
+                email=null; otherFields=null;
+                try {
+                    email = userProfile.keys().next().toString();
+                    otherFields = userProfile.getJSONObject(email);
+                } catch (Exception e) {
+                    Log.e("userProfileError", "Cant separate email and other values");
+                }
+                if (email != null && otherFields != null) {
+                    HttpClient httpClient = new DefaultHttpClient();
+                    HttpPost httpost = new HttpPost("http://delta.ngrok.com/user");
+                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+                    nameValuePairs.add(new BasicNameValuePair("email", email));
+                    nameValuePairs.add(new BasicNameValuePair("data", otherFields.toString()));
+                    try {
+                        httpost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                        HttpResponse response = httpClient.execute(httpost);
+                        if (response != null) {
+                            //If status is OK 200
+                            if (response.getStatusLine().getStatusCode() == 201) {
+                                Log.i("AfterUserProfilePost", "Successfully created user profile");
+//                                Toast t = new Toast(LinkedInAuthActivity.this);
+//                                t.setText("Successfully created profile");
+//                                t.show();
+                            } else if (response.getStatusLine().getStatusCode() == 200) {
+                                Log.i("AfterUserProfilePost", "Profile Already exists");
+//                                Toast t = new Toast(LinkedInAuthActivity.this);
+//                                t.setText("Profile Already exists");
+//                                t.show();
+                            }
+                            return true;
+                        }
+                    } catch (IOException e) {
+                        Log.e("Authorize", "Error Http response " + e.getLocalizedMessage());
+                    } catch (ParseException e) {
+                        Log.e("Authorize", "Error Parsing Http response " + e.getLocalizedMessage());
+                    }
+                }
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean status){
+            if(pd!=null && pd.isShowing()){
+                pd.dismiss();
+            }
+            if(status){
+                Log.d("STATUS", "Successfully Created/Got User");
+                try {
+                    new GetRecommendationAsyncTask().execute("http://delta.ngrok.com/user/" + URLEncoder.encode(email, "utf-8") + "/reco");
+                }
+                catch (Exception e) {
+                    Log.e("RecommendationRequestAsyncTaskCreationError", "Failed to construct request to ask recommendation");
+                }
+
+                //If everything went Ok, change to another activity.
+//                Intent startProfileActivity = new Intent(MainActivity.this, ProfileActivity.class);
+//                MainActivity.this.startActivity(startProfileActivity);
+            }
+        }
+
+    };
+
+
+
+    private class GetRecommendationAsyncTask extends AsyncTask<String, Void, Boolean> {
+        JSONObject recommendedUserProfile;
+
+        @Override
+        protected void onPreExecute(){
+            if(pd!=null && pd.isShowing()){
+                pd.dismiss();
+            }
+            pd = new ProgressDialog(LinkedInAuthActivity.this);
+            pd = ProgressDialog.show(LinkedInAuthActivity.this, "", "Finding a person for you to meet",true);
+        }
+
+        @Override
+        protected Boolean doInBackground(String... urls) {
+            recommendedUserProfile = new JSONObject();
+            if(urls.length>0){
+                String url = urls[0];
+                HttpClient httpClient = new DefaultHttpClient();
+                HttpGet httpget = new HttpGet(url);
+                try {
+                    HttpResponse response = httpClient.execute(httpget);
+                    if (response != null) {
+                        //If status is OK 200
+                        if (response.getStatusLine().getStatusCode() == 200) {
+                            String result = EntityUtils.toString(response.getEntity());
+                            Log.i("Recommended user", result);
+                            //Convert the string result to a JSON Object
+                            JSONObject resultJson = new JSONObject(result);
+                            Log.i("JSON Recommended User profile!!!", "" + resultJson);
+                            //Extract data from JSON Response
+                            try {
+                                JSONObject valueJSON = new JSONObject(resultJson.getString("data"));
+                                recommendedUserProfile.put(resultJson.getString("reco_user_email"), valueJSON);
+                            } catch (Exception e) {
+                                Log.e("JSONGetError", "Failed to get data and email of recommended user");
+                            }
+
+                            Log.i("Recommended User", recommendedUserProfile.toString());
+
+                            return true;
+                        }
+                    }
+                } catch (IOException e) {
+                    Log.e("Authorize", "Error Http response " + e.getLocalizedMessage());
+                } catch (ParseException e) {
+                    Log.e("Authorize", "Error Parsing Http response " + e.getLocalizedMessage());
+                } catch (JSONException e) {
+                    Log.e("Authorize", "Error Parsing Http response " + e.getLocalizedMessage());
+                }
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean status){
+            if(pd!=null && pd.isShowing()){
+                pd.dismiss();
+            }
+            if(status){
+                Log.d("STATUS", "Successfully got recommended user profile!!!!!");
+                Log.i("Recommended User", recommendedUserProfile.toString());
                 //If everything went Ok, change to another activity.
 //                Intent startProfileActivity = new Intent(MainActivity.this, ProfileActivity.class);
 //                MainActivity.this.startActivity(startProfileActivity);
