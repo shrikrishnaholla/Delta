@@ -25,7 +25,7 @@ public class Bucketify {
 
         Set<String> tech = new HashSet<String>(Arrays.asList(
                 new String[]{"developer", "developers", "technical", "software", "hardware", "engineer",
-                        "engineers", "tech"}
+                        "engineers", "tech", "product", "system"}
         ));
 
         Set<String> law = new HashSet<String>(Arrays.asList(
@@ -35,7 +35,7 @@ public class Bucketify {
 
         Set<String> art = new HashSet<String>(Arrays.asList(
                 new String[]{"artists", "artist", "dancer", "dancers", "musician", "musicians", "music",
-                        "dance", "ballet", "tap-dancer", "dance", "sing", "singer", "opera", "painter"}
+                        "dance", "ballet", "tap-dancer", "dance", "sing", "singer", "opera", "painter", "artisan"}
         ));
 
         Set<String> journalism = new HashSet<String>(Arrays.asList(
@@ -77,7 +77,6 @@ public class Bucketify {
         if (finance.contains(occupation)) {
             return "finance";
         }
-
 
         return "none";
 
