@@ -19,6 +19,8 @@ public class Bucketify {
 
     public static String getBucket(String occupation) {
 
+        occupation = occupation.toLowerCase();
+
         if (occupation == "") {
             return "";
         }
