@@ -2,10 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.delta.delta.ChatActivity">
 
     <LinearLayout
@@ -18,11 +14,32 @@
             android:layout_width="fill_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:orientation="horizontal">
-            <View
-                android:layout_width="fill_parent"
+            android:orientation="horizontal"
+            android:weightSum="6"
+            android:background="#152127">
+
+            <TextView
+                android:layout_width="0dp"
                 android:layout_height="fill_parent"
-                android:background="#aaaaaa"></View>
+                android:layout_weight="5"
+                android:text="Sathyam"
+                android:textSize="12pt"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="13dp"
+                android:gravity="center_vertical"
+                android:textColor="#eceff1"/>
+
+            <ImageButton
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="0.8"
+                android:paddingBottom="20dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="2dp"
+                android:background="@drawable/displaypic"
+                />
+
         </LinearLayout>
         <LinearLayout
             android:layout_width="fill_parent"
@@ -31,24 +48,34 @@
             android:orientation="vertical"
             android:layout_marginTop="10dp">
             <ListView
+                android:id="@+id/chatList"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"></ListView>
+                android:layout_height="fill_parent"
+                android:divider="@null"
+                android:dividerHeight="0dp"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:weightSum="4"
-            android:orientation="horizontal">
+            android:weightSum="6"
+            android:orientation="horizontal"
+            android:background="#cfd8dc">
             <EditText
+                android:id="@+id/etMessage"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
-                android:layout_weight="3"/>
-            <Button
+                android:hint="Wanna say something?"
+                android:inputType="text"
+                android:layout_weight="5"/>
+            <ImageButton
+                android:id="@+id/btnSendChat"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
-                android:text="@string/button_send"/>
+                android:src="@drawable/ic_action_send_now"
+                android:scaleType="fitXY"
+                android:background="@android:color/transparent"/>
         </LinearLayout>
 
     </LinearLayout>
