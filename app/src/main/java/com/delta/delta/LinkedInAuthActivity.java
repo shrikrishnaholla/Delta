@@ -306,6 +306,11 @@ public class LinkedInAuthActivity extends Activity {
                                 userProfile = JSONFactory.getUserJSONProfile(resultJson, accessToken);
                                 Log.i("After factory", userProfile.toString());
 
+                                SharedPreferences sharedpreferences = LinkedInAuthActivity.this.getSharedPreferences("user_info", 0);
+                                SharedPreferences.Editor editor = sharedpreferences.edit();
+                                editor.putString("userProfile", userProfile.toString());
+                                editor.commit();
+
                                 return true;
                             }
                         }
