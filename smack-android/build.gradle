@@ -1,0 +1,41 @@
+description = """\
+Smack for Android.
+All the required dependencies to run Smack on Android.
+Usually you want to add additional dependencies to smack-tcp,
+smack-extensions and smack-experimental."""
+
+ext {
+}
+
+// Note that the test dependencies (junit, …) are inferred from the
+// sourceSet.test of the core subproject
+dependencies {
+	// Filter out the optional Smack dependencies from androidProjects
+	androidProjects.findAll {
+		![':smack-tcp', ':smack-extensions', ':smack-experimental'].contains(it.getPath())
+	}.each { project ->
+		compile project
+	}
+}
+
+compileJava {
+	options.bootClasspath = androidBootClasspath
+}
+
+// See http://stackoverflow.com/a/2823592/194894
+// TODO this doesn't seem to work right now. But on the other hand it
+// is not really required, just to avoid a javadoc compiler warning
+javadoc {
+	options.linksOffline "http://developer.android.com/reference", androidJavadocOffline
+}
+
+configure (androidProjects) {
+	task compileAndroid(type: JavaCompile) {
+		source = compileJava.source
+		classpath = compileJava.classpath
+		destinationDir = new File(buildDir, 'android')
+		options.bootClasspath = androidBootClasspath
+	}
+}
+
+test { dependsOn androidProjects*.compileAndroid }
