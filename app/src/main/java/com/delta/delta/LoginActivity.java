@@ -2,7 +2,9 @@ package com.delta.delta;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,6 +13,12 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageButton;
+
+import com.delta.delta.utils.Recommender;
+
+import org.json.JSONObject;
+
+import java.io.File;
 
 
 public class LoginActivity extends Activity {
@@ -21,6 +29,23 @@ public class LoginActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        File f = new File(
+                "/data/data/com.delta.delta/shared_prefs/user_info.xml");
+        if (f.exists()) {
+            Log.d("TAG", "SharedPreferences user_info : exist");
+            SharedPreferences sharedpreferences = getSharedPreferences("user_info", 0);
+            if(sharedpreferences.contains("accessToken") && sharedpreferences.contains("userProfile")) {
+                String userProfileString = sharedpreferences.getString("userProfile", null);
+                if (userProfileString != null) {
+                    try {
+                        new Recommender(this, new JSONObject(userProfileString));
+                    } catch (Exception e) {
+                        Log.e("JSON parser Exception", "Failed to parse user profile string : " + userProfileString, e);
+                    }
+                }
+            }
+        }
 
         loginButton = (ImageButton) findViewById(R.id.btnLogin);
         loginButton.setOnClickListener(new View.OnClickListener() {

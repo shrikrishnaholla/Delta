@@ -14,6 +14,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.delta.delta.utils.Recommender;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
@@ -413,83 +415,13 @@ public class LinkedInAuthActivity extends Activity {
             if(status){
                 Log.d("STATUS", "Successfully Created/Got User");
                 try {
-                    new GetRecommendationAsyncTask().execute("http://delta.ngrok.com/user/" + URLEncoder.encode(email, "utf-8") + "/reco");
+                    //new GetRecommendationAsyncTask().execute("http://delta.ngrok.com/user/" + URLEncoder.encode(email, "utf-8") + "/reco");
+                    new Recommender(LinkedInAuthActivity.this, userProfile);
                 }
                 catch (Exception e) {
                     Log.e("RecommendationRequestAsyncTaskCreationError", "Failed to construct request to ask recommendation");
                 }
 
-                //If everything went Ok, change to another activity.
-//                Intent startProfileActivity = new Intent(MainActivity.this, ProfileActivity.class);
-//                MainActivity.this.startActivity(startProfileActivity);
-            }
-        }
-
-    };
-
-
-
-    private class GetRecommendationAsyncTask extends AsyncTask<String, Void, Boolean> {
-        JSONObject recommendedUserProfile;
-
-        @Override
-        protected void onPreExecute(){
-            if(pd!=null && pd.isShowing()){
-                pd.dismiss();
-            }
-            pd = new ProgressDialog(LinkedInAuthActivity.this);
-            pd = ProgressDialog.show(LinkedInAuthActivity.this, "", "Finding a person for you to meet",true);
-        }
-
-        @Override
-        protected Boolean doInBackground(String... urls) {
-            recommendedUserProfile = new JSONObject();
-            if(urls.length>0){
-                String url = urls[0];
-                HttpClient httpClient = new DefaultHttpClient();
-                HttpGet httpget = new HttpGet(url);
-                try {
-                    HttpResponse response = httpClient.execute(httpget);
-                    if (response != null) {
-                        //If status is OK 200
-                        if (response.getStatusLine().getStatusCode() == 200) {
-                            String result = EntityUtils.toString(response.getEntity());
-                            Log.i("Recommended user", result);
-                            //Convert the string result to a JSON Object
-                            JSONObject resultJson = new JSONObject(result);
-                            Log.i("JSON Recommended User profile!!!", "" + resultJson);
-                            //Extract data from JSON Response
-                            try {
-                                JSONObject valueJSON = new JSONObject(resultJson.getString("data"));
-                                recommendedUserProfile.put(resultJson.getString("reco_user_email"), valueJSON);
-                            } catch (Exception e) {
-                                Log.e("JSONGetError", "Failed to get data and email of recommended user");
-                            }
-
-                            Log.i("Recommended User", recommendedUserProfile.toString());
-
-                            return true;
-                        }
-                    }
-                } catch (IOException e) {
-                    Log.e("Authorize", "Error Http response " + e.getLocalizedMessage());
-                } catch (ParseException e) {
-                    Log.e("Authorize", "Error Parsing Http response " + e.getLocalizedMessage());
-                } catch (JSONException e) {
-                    Log.e("Authorize", "Error Parsing Http response " + e.getLocalizedMessage());
-                }
-            }
-            return false;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean status){
-            if(pd!=null && pd.isShowing()){
-                pd.dismiss();
-            }
-            if(status){
-                Log.d("STATUS", "Successfully got recommended user profile!!!!!");
-                Log.i("Recommended User", recommendedUserProfile.toString());
                 //If everything went Ok, change to another activity.
 //                Intent startProfileActivity = new Intent(MainActivity.this, ProfileActivity.class);
 //                MainActivity.this.startActivity(startProfileActivity);
