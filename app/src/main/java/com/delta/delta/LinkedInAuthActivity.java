@@ -255,7 +255,7 @@ public class LinkedInAuthActivity extends Activity {
                 Log.d("NEXT", "Now getting profile");
                 pd = new ProgressDialog(LinkedInAuthActivity.this);
                 pd = ProgressDialog.show(LinkedInAuthActivity.this, "", "Fetching your profile",true);
-                new GetRequestAsyncTask().execute("https://api.linkedin.com/v1/people/~:(id,first-name,last-name,industry,email-address,associations,interests,languages,skills,educations,volunteer,three-current-positions,job-bookmarks,connections,group-memberships)?format=json");
+                new GetRequestAsyncTask().execute("https://api.linkedin.com/v1/people/~:(id,first-name,last-name,industry,email-address,associations,interests,languages,skills,educations,volunteer,three-current-positions,job-bookmarks,group-memberships)?format=json");
                 //If everything went Ok, change to another activity.
 //                Intent startProfileActivity = new Intent(MainActivity.this, ProfileActivity.class);
 //                MainActivity.this.startActivity(startProfileActivity);
@@ -288,12 +288,13 @@ public class LinkedInAuthActivity extends Activity {
                             //If status is OK 200
                             if (response.getStatusLine().getStatusCode() == 200) {
                                 String result = EntityUtils.toString(response.getEntity());
-                                Log.i("JSON User profile!!!", "" + result);
+                                Log.i("Profile before JSONification!!!", "" + result);
                                 //Convert the string result to a JSON Object
                                 JSONObject resultJson = new JSONObject(result);
                                 Log.i("JSON User profile!!!", "" + resultJson);
                                 //Extract data from JSON Response
-
+                                JSONObject userProfile = JSONFactory.getUserJSONProfile(resultJson, accessToken);
+                                Log.i("After factory", userProfile.toString());
                             }
                         }
                     } catch (IOException e) {
@@ -313,9 +314,9 @@ public class LinkedInAuthActivity extends Activity {
 
         @Override
         protected void onPostExecute(Boolean status){
-//            if(pd!=null && pd.isShowing()){
-//                pd.dismiss();
-//            }
+            if(pd!=null && pd.isShowing()){
+                pd.dismiss();
+            }
             if(status){
                 Log.d("STATUS", "Successfully got user profile!!!!!");
                 //If everything went Ok, change to another activity.
