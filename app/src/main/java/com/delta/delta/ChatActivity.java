@@ -14,6 +14,8 @@ import android.widget.ListView;
 import com.delta.delta.utils.ChatAdapter;
 import com.delta.delta.utils.ChatMessage;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 
@@ -24,6 +26,9 @@ public class ChatActivity extends Activity {
     public EditText message;
     public ListView chatList;
     public ChatAdapter chatAdapter;
+    public SocketIOManager io;
+    private JSONObject self;
+    private JSONObject other;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +41,16 @@ public class ChatActivity extends Activity {
         messages = new ArrayList<ChatMessage>();
         chatAdapter = new ChatAdapter(ChatActivity.this, messages);
         chatList.setAdapter(chatAdapter);
+
+        String selfProfileString = this.getIntent().getStringExtra("self");
+        String otherProfileString = this.getIntent().getStringExtra("other");
+        try {
+            self = new JSONObject(selfProfileString);
+            other = new JSONObject(otherProfileString);
+        } catch (Exception e) {
+            Log.e("JSONCreationError", "Error creating json Objects out of strings", e);
+        }
+        io = new SocketIOManager(this, "http://deltamsg.ngrok.com", self, other, chatAdapter);
 
         btnSendChat.setOnClickListener(new View.OnClickListener() {
             @Override
