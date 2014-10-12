@@ -2,8 +2,11 @@ package com.delta.delta.utils;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import com.delta.delta.ChatActivity;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
@@ -23,9 +26,11 @@ import java.net.URLEncoder;
 public class Recommender {
     String email;
     JSONObject otherFields;
+    JSONObject userProfilecls;
     ProgressDialog pd;
     Context ctx;
     public Recommender(Context context, JSONObject userProfile) {
+        userProfilecls = userProfile;
         email=null; otherFields=null;
         ctx = context;
         try {
@@ -100,6 +105,12 @@ public class Recommender {
             if(status){
                 Log.d("STATUS", "Successfully got recommended user profile!!!!!");
                 Log.i("Recommended User", recommendedUserProfile.toString());
+
+                Intent chatActivity = new Intent(ctx, ChatActivity.class);
+                chatActivity.putExtra("self", userProfilecls.toString());
+                chatActivity.putExtra("other", recommendedUserProfile.toString());
+
+                ctx.startActivity(chatActivity);
                 //If everything went Ok, change to another activity.
 //                Intent startProfileActivity = new Intent(MainActivity.this, ProfileActivity.class);
 //                MainActivity.this.startActivity(startProfileActivity);
