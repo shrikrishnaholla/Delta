@@ -22,7 +22,7 @@
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="5"
-                android:text="Sathyam"
+                android:text="Phalgun"
                 android:textSize="12pt"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="13dp"

@@ -29,6 +29,7 @@ import com.quickblox.module.users.QBUsers;
 import com.quickblox.module.users.model.QBUser;
 
 import org.jivesoftware.smack.packet.Message;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -41,6 +42,9 @@ public class ChatActivity extends Activity {
     public ListView chatList;
     public ChatAdapter chatAdapter;
 
+    public JSONObject self;
+    public int q_id;
+
     public QBUser user;
     public QBPrivateChat chat;
 
@@ -49,10 +53,18 @@ public class ChatActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        try {
+            self = new JSONObject(this.getIntent().getStringExtra("self"));
+            q_id = Integer.parseInt(this.getIntent().getStringExtra("q_id"));
+        } catch(Exception e) {
+
+        }
+
         SmackAndroid.init(this);
         QBSettings.getInstance().fastConfigInit("15301", "kQVLuM853FmJRXW", "uXrLkmMgdCAfENu");
 
-        user = new QBUser("abc", "12345678");
+        String epass = self.keys().next();
+        user = new QBUser("Lena", "LenaLena");
         QBAuth.createSession(user, new QBCallbackImpl() {
             @Override
             public void onComplete(Result result) {
@@ -73,6 +85,9 @@ public class ChatActivity extends Activity {
                                             @Override
                                             public void processMessage(Message message) {
                                                 msg = message;
+                                                ChatMessage chatMessage = new ChatMessage(msg.getBody());
+                                                chatAdapter.add(chatMessage);
+                                                chatAdapter.notifyDataSetChanged();
                                                 Log.d("chat activity onCreate", "Messages: " + message.getBody());
                                             }
 
@@ -80,9 +95,6 @@ public class ChatActivity extends Activity {
                                             public boolean accept(Message.Type messageType) {
                                                 switch (messageType) {
                                                     case chat:
-                                                        ChatMessage chatMessage = new ChatMessage(msg.getBody());
-                                                        chatAdapter.add(chatMessage);
-                                                        chatAdapter.notifyDataSetChanged();
                                                         return true; // process 1-1 chat messages
                                                     default:
                                                         return false;
@@ -126,7 +138,7 @@ public class ChatActivity extends Activity {
             public void onClick(View v) {
                 ChatMessage chatMessage = new ChatMessage(message.getText().toString());
                 try {
-                    chat.sendMessage(1687571, chatMessage.message);
+                    chat.sendMessage(1687508, chatMessage.message);
                 } catch(Exception e) {
 
                 }

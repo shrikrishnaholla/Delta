@@ -33,6 +33,7 @@ public class Recommender {
         userProfilecls = userProfile;
         email=null; otherFields=null;
         ctx = context;
+
         try {
             email = userProfile.keys().next().toString();
             otherFields = userProfile.getJSONObject(email);
@@ -48,6 +49,7 @@ public class Recommender {
 
     private class GetRecommendationAsyncTask extends AsyncTask<String, Void, Boolean> {
         JSONObject recommendedUserProfile;
+        String q_id;
 
         @Override
         protected void onPreExecute(){
@@ -77,6 +79,7 @@ public class Recommender {
                             try {
                                 JSONObject valueJSON = new JSONObject(resultJson.getString("data"));
                                 recommendedUserProfile.put(resultJson.getString("reco_user_email"), valueJSON);
+                                q_id = resultJson.getString("q_id");
                             } catch (Exception e) {
                                 Log.e("JSONGetError", "Failed to get data and email of recommended user");
                             }
@@ -109,6 +112,7 @@ public class Recommender {
                 Intent chatActivity = new Intent(ctx, ChatActivity.class);
                 chatActivity.putExtra("self", userProfilecls.toString());
                 chatActivity.putExtra("other", recommendedUserProfile.toString());
+                chatActivity.putExtra("q_id", q_id);
 
                 ctx.startActivity(chatActivity);
                 //If everything went Ok, change to another activity.
