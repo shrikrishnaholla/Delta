@@ -16,6 +16,15 @@ import org.json.JSONObject;
 
 import java.io.File;
 
+import com.quickblox.core.QBCallbackImpl;
+import com.quickblox.core.QBSettings;
+import com.quickblox.core.result.Result;
+import com.quickblox.module.auth.QBAuth;
+import com.quickblox.module.auth.result.QBSessionResult;
+import com.quickblox.module.chat.QBChatService;
+import com.quickblox.module.chat.smack.SmackAndroid;
+import com.quickblox.module.users.model.QBUser;
+
 
 public class LoginActivity extends Activity {
 
